@@ -1,0 +1,43 @@
+__author__ = 'MagdaTarka'
+
+
+class Tree(object):
+
+    def __init__(self, value, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+    def __repr__(self):
+        return 'Tree(%r, %r, %r)' % (self.value, self.left, self.right)
+
+
+
+class RandomForestClassifier():
+
+    def __init__(self,n_features):
+        self.n=n_features
+
+
+
+'''
+Trzeba wybrac ceche ktora najlepiej podzieli zbior.
+Losujemy n_features i z nich wybieramy za pomoca kryterium Gini impurity
+'''
+
+'''
+gini = kryterium optymalnosci Gini impurity.
+n - liczba wszystkich przykladow
+nl, nr - liczba przykladow, ktore po podziale trafia do lewego i prawego syna
+nl0, nl1 - liczba przykladow z pierwszej i drugiej klasy w lewym synu
+np0, np1 - analogicznie jakw wyzej tylko dla prawego syna
+'''
+
+def gini(n,nl,nr,nl0,nl1,nr0,nr1):
+    return (nl/n)*(nl0/nl*(1-nl0/nl)+nl1/nl*(1-nl1/nl))+(nr/n)*(nr0/nr*(1-nr0/nr)+nr1/nr*(1-nr1/nr))
+
+
+
+
+#t=Tree(5,Tree(6,7),7)
+#print t.__repr__()
