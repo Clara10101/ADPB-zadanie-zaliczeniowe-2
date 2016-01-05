@@ -39,38 +39,37 @@ class BinNode:
         #sprawdzenie wszystkich mozliwych wartosci dla kazdej z wylosowanych cech
         for i in random_features:
 
-            #if data_type[i][0] == 'numeryczne':
-                #sprawdzenie kazdej wartosci wezlowej
-                for j in data_type[i][1]:
-                    L_values = []; R_values = []
-                    for value in self.values:
-                        if data_type[i][0] == 'numeryczne':
-                            if float(X[value,i]) <= float(j):
-                                L_values.append(value)
-                            else:
-                                R_values.append(value)
+            #sprawdzenie kazdej wartosci wezlowej
+            for j in data_type[i][1]:
+                L_values = []; R_values = []
+                for value in self.values:
+                    if data_type[i][0] == 'numeryczne':
+                        if float(X[value,i]) <= float(j):
+                            L_values.append(value)
                         else:
-                            if X[value,i] == j:
-                                L_values.append(value)
-                            else:
-                                R_values.append(value)
+                            R_values.append(value)
+                    else:
+                        if X[value,i] == j:
+                            L_values.append(value)
+                        else:
+                            R_values.append(value)
 
-                    n_L = len(L_values); n_R = len(R_values)
-                    n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
-                    n_L1 = sum([val == classifier_classes[1] for val in y[L_values]])#n-n_l0
-                    n_R0 = sum([val == classifier_classes[0] for val in y[R_values]])
-                    n_R1 = sum([val == classifier_classes[1] for val in y[R_values]])
+                n_L = len(L_values); n_R = len(R_values)
+                n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
+                n_L1 = sum([val == classifier_classes[1] for val in y[L_values]])#n-n_l0
+                n_R0 = sum([val == classifier_classes[0] for val in y[R_values]])
+                n_R1 = sum([val == classifier_classes[1] for val in y[R_values]])
 
-                    #interesuje nas tylko podzial dzie kazdy z synow ma przypisane jakies obserwacje
-                    if n_L != 0 and n_R != 0:
-                        gini_impurity = gini(len(self.values),n_L,n_R,n_L0,n_L1,n_R0,n_R1)
+                #interesuje nas tylko podzial dzie kazdy z synow ma przypisane jakies obserwacje
+                if n_L != 0 and n_R != 0:
+                    gini_impurity = gini(len(self.values),n_L,n_R,n_L0,n_L1,n_R0,n_R1)
 
-                        #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje gini
-                        if gini_impurity < best_gini_impurity:
-                            best_gini_impurity = gini_impurity
-                            best_division_condition = j
-                            best_L_values = L_values
-                            best_R_values = R_values
+                    #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje gini
+                    if gini_impurity < best_gini_impurity:
+                        best_gini_impurity = gini_impurity
+                        best_division_condition = j
+                        best_L_values = L_values
+                        best_R_values = R_values
 
         return best_division_condition, best_L_values, best_R_values
 
