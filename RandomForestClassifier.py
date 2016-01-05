@@ -35,6 +35,7 @@ class BinNode:
         random_features = random.sample(range(1, n), n_features)
         best_division_condition = None; best_L_values = None; best_R_values = None
         best_gini_impurity = inf
+        n_all = self.values
 
         #sprawdzenie wszystkich mozliwych wartosci dla kazdej z wylosowanych cech
         for i in random_features:
@@ -56,13 +57,13 @@ class BinNode:
 
                 n_L = len(L_values); n_R = len(R_values)
                 n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
-                n_L1 = sum([val == classifier_classes[1] for val in y[L_values]])#n-n_l0
+                n_L1 = n_all - n_L0
                 n_R0 = sum([val == classifier_classes[0] for val in y[R_values]])
-                n_R1 = sum([val == classifier_classes[1] for val in y[R_values]])
+                n_R1 = n_all - n_R0
 
                 #interesuje nas tylko podzial dzie kazdy z synow ma przypisane jakies obserwacje
                 if n_L != 0 and n_R != 0:
-                    gini_impurity = gini(len(self.values),n_L,n_R,n_L0,n_L1,n_R0,n_R1)
+                    gini_impurity = gini(n_all,n_L,n_R,n_L0,n_L1,n_R0,n_R1)
 
                     #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje gini
                     if gini_impurity < best_gini_impurity:
