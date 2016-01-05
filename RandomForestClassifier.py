@@ -27,6 +27,8 @@ class BinNode:
         #wyznaczenie optymalnego podzialu w wezle
         #Dla kazdego wierzcholka bedziemy losowali n_features cech i tylko dla nich bedziemy sprawdzali wszystkie mozliwe wartosci
         #kryterium optymalnosci Gini impurity
+        #zwraca krotke postaci (kryterium podzialu, obserwacje w lewym synu, obserwacje w prawym synu)
+        #jesli nie ma mozliwosci ustanowienia takiego podzialu aby kazdy z synow zawieral jakies wartosci krotka postaci (None, None, None)
 
         m, n = X.shape
         data_type, classifier_classes = analyse_input_data(X, y)
@@ -37,15 +39,22 @@ class BinNode:
         #sprawdzenie wszystkich mozliwych wartosci dla kazdej z wylosowanych cech
         for i in random_features:
 
-            if data_type[i][0] == 'numeryczne':
+            #if data_type[i][0] == 'numeryczne':
                 #sprawdzenie kazdej wartosci wezlowej
                 for j in data_type[i][1]:
                     L_values = []; R_values = []
                     for value in self.values:
-                        if float(X[value,i]) <= float(j):
-                            L_values.append(value)
+                        if data_type[i][0] == 'numeryczne':
+                            if float(X[value,i]) <= float(j):
+                                L_values.append(value)
+                            else:
+                                R_values.append(value)
                         else:
-                            R_values.append(value)
+                            if X[value,i] == j:
+                                L_values.append(value)
+                            else:
+                                R_values.append(value)
+
                     n_L = len(L_values); n_R = len(R_values)
                     n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
                     n_L1 = sum([val == classifier_classes[1] for val in y[L_values]])#n-n_l0
