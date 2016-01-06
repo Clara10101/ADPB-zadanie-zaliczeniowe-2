@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from collections import deque, Counter
 
 inf = float('inf')
 
@@ -146,11 +147,80 @@ class BinTree:
 class RandomForestClassifier:
 
     def __init__(self, n_features):
+
         self.n_features = n_features
         self.forest = []
 
     def fit(self, X, y):
-        pass
+
+        m, n = X.shape
+
+        new_tree = True
+        last_oob_errors = deque(maxlen=11)
+        trees_training_rows = []
+        classifier_classes = list(set(y))
+        actual_classification_for_training_set = [Counter({classifier_classes[0] : 0, classifier_classes[1] : 0}) for i in range(m)]
+
+        while new_tree:
+
+            #losowanie ze zwracaniem m przykladow ze zbioru treningowego
+            rows = np.random.choice(m, m, replace=True)
+            training_set = X[rows,:]
+            training_set_classes = y[rows]
+            #wiersze ktore nie sa w zbiorze treningowym - out of bag
+            not_rows = list(set(range(m)).difference(rows))
+            testing_set = X[not_rows,:]
+            testing_set_classes = y[not_rows]
+
+
+            tree = self.create_decision_tree(training_set, training_set_classes)
+            self.forest.append(tree)
+            trees_training_rows.append(list(set(rows)))
+
+            #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
+            for i,row in enumerate(testing_set):
+                decision = tree.classify(row)
+                actual_classification_for_training_set[i][decision] += 1
+                '''decisions = []
+                for j,forest_tree in enumerate(self.forest):
+                    #obserwacja i nie wykorzystana do nauczenia drzewa j
+                    if i not in trees_training_rows[j]:
+                        #decyzja dla drzewa j
+                        decisions.append(tree.classify(row))
+
+                #decyzja lasu to decyzja wiekszosciowa
+                #zliczenie wystapien kazdej z decyzji
+                cnt = Counter()
+                for decision in decisions:
+                    cnt[decision] += 1
+                forest_decision = cnt.most_common(1)[0][0]
+
+                if tree.classify(row) == testing_set_classes[i]:
+                    true_sum += 1
+                else:
+                    false_sum += 1'''
+
+            true_sum = 0
+            false_sum = 0
+
+            #zliczenie poprawnych klasyfikacji po dodaniu drzewa
+            for i,observation in enumerate(actual_classification_for_training_set):
+                forest_decision = observation.most_common(1)[0][0]
+                if forest_decision == y[i]:
+                    true_sum += 1
+                else:
+                    false_sum += 1
+
+
+            #aktualny blad oob po dodaniu do lasu drzewa
+            oob_error = true_sum / float(true_sum + false_sum)
+            last_oob_errors.append(oob_error)
+
+            #sprawdzenie czy mozna zakonczyc proces uczenia nowych drzew
+            if len(last_oob_errors) == 11:
+                if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.01:
+                    new_tree = False
+
 
     def create_decision_tree(self, X, y):
 
@@ -232,4 +302,7 @@ print tree.root()
 #print show(tree)
 
 przyklad_testowy = ['Renault', 2005, 'bezkolizyjny', 215000]
-print tree.classify(przyklad_testowy)
+#print tree.classify(przyklad_testowy)
+
+r.fit(dane_test_X,dane_test_y)
+print r.forest
