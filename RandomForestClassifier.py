@@ -150,6 +150,7 @@ class RandomForestClassifier:
 
         self.n_features = n_features
         self.forest = []
+        self.classifier_classes = []
 
     def fit(self, X, y):
 
@@ -157,9 +158,17 @@ class RandomForestClassifier:
 
         new_tree = True
         last_oob_errors = deque(maxlen=11)
-        trees_training_rows = []
-        classifier_classes = list(set(y))
-        actual_classification_for_training_set = [Counter({classifier_classes[0] : 0, classifier_classes[1] : 0}) for i in range(m)]
+
+        #zakladamy ze tylko dwie klasy
+        #jako pierwsza w liscie ma byc klasa y[0] - wystepujaca w zbiorze treneigowym jako pierwsza
+
+        self.classifier_classes = [y[0]]
+        for c in y:
+            if c != y[0]:
+                self.classifier_classes.append(c)
+
+        #klasyfikacje dokonane za pomoca k-1 drzew
+        actual_classification_for_training_set = [Counter({self.classifier_classes[0] : 0, self.classifier_classes[1] : 0}) for i in range(m)]
 
         while new_tree:
 
@@ -167,50 +176,31 @@ class RandomForestClassifier:
             rows = np.random.choice(m, m, replace=True)
             training_set = X[rows,:]
             training_set_classes = y[rows]
+
             #wiersze ktore nie sa w zbiorze treningowym - out of bag
             not_rows = list(set(range(m)).difference(rows))
             testing_set = X[not_rows,:]
-            testing_set_classes = y[not_rows]
+            #testing_set_classes = y[not_rows]
 
 
             tree = self.create_decision_tree(training_set, training_set_classes)
             self.forest.append(tree)
-            trees_training_rows.append(list(set(rows)))
 
             #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
             for i,row in enumerate(testing_set):
                 decision = tree.classify(row)
                 actual_classification_for_training_set[i][decision] += 1
-                '''decisions = []
-                for j,forest_tree in enumerate(self.forest):
-                    #obserwacja i nie wykorzystana do nauczenia drzewa j
-                    if i not in trees_training_rows[j]:
-                        #decyzja dla drzewa j
-                        decisions.append(tree.classify(row))
-
-                #decyzja lasu to decyzja wiekszosciowa
-                #zliczenie wystapien kazdej z decyzji
-                cnt = Counter()
-                for decision in decisions:
-                    cnt[decision] += 1
-                forest_decision = cnt.most_common(1)[0][0]
-
-                if tree.classify(row) == testing_set_classes[i]:
-                    true_sum += 1
-                else:
-                    false_sum += 1'''
 
             true_sum = 0
             false_sum = 0
 
-            #zliczenie poprawnych klasyfikacji po dodaniu drzewa
+            #zliczenie klasyfikacji po dodaniu drzewa
             for i,observation in enumerate(actual_classification_for_training_set):
                 forest_decision = observation.most_common(1)[0][0]
                 if forest_decision == y[i]:
                     true_sum += 1
                 else:
                     false_sum += 1
-
 
             #aktualny blad oob po dodaniu do lasu drzewa
             oob_error = true_sum / float(true_sum + false_sum)
@@ -221,6 +211,39 @@ class RandomForestClassifier:
                 if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.01:
                     new_tree = False
 
+    def predict(self,X):
+
+        decisions = self.decisions_made_by_all_trees(X)
+        forest_decisions = []
+
+        for dec in decisions:
+            forest_decisions.append(dec.most_common(1)[0][0])
+
+        return forest_decisions
+
+    def predict_proba(self,X):
+        #zwraca wektor prawdopodobienstw przynaleznosci przykladow do pierwszej klasy - czyli do klasy wystepujacej w zbiorze treningowym jako pierwsza
+
+        decisions = self.decisions_made_by_all_trees(X)
+        forest_proba_decisions = []
+        n_trees = float(len(self.forest))
+
+        for dec in decisions:
+            forest_proba_decisions.append(dec[self.classifier_classes[0]] / n_trees)
+
+        return forest_proba_decisions
+
+    def decisions_made_by_all_trees(self,X):
+
+        m, n = X.shape
+
+        #dla kazdego wiersza z tabeli X zliczenie decyzji podjetych przez wszystkie drzewa w lesie
+        decisions = [Counter({self.classifier_classes[0] : 0, self.classifier_classes[1] : 0}) for i in range(m)]
+        for i,row in enumerate(X):
+            for tree in self.forest:
+                decision = tree.classify(row)
+                decisions[i][decision] += 1
+        return decisions
 
     def create_decision_tree(self, X, y):
 
@@ -298,7 +321,7 @@ dane_test_y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ'])
 
 r = RandomForestClassifier(3)
 tree = r.create_decision_tree(dane_test_X, dane_test_y)
-print tree.root()
+#print tree.root()
 #print show(tree)
 
 przyklad_testowy = ['Renault', 2005, 'bezkolizyjny', 215000]
@@ -306,3 +329,5 @@ przyklad_testowy = ['Renault', 2005, 'bezkolizyjny', 215000]
 
 r.fit(dane_test_X,dane_test_y)
 print r.forest
+print r.predict(dane_test_X)
+print r.predict_proba(dane_test_X)
