@@ -308,16 +308,14 @@ def show(tree):
 
 
 
-# t=Tree(5,Tree(6,7),7)
-#print t
+# Dane testowe
 dane_test_X = np.array(
     [['Honda', 2009, 'igla', 180000.87], ['Honda', 2005, 'igla', 10100], ['Honda', 2006, 'idealny', 215000], ['Renault', 2010, 'igla', 130000], ['Renault', 2007, 'idealny', 200000]])
 dane_test_y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ'])
+
 #analyse_input_data(dane_test_X, dane_test_y)
 #przykladowy wynik wywolania
 #[('wyliczeniowe', ['Honda']), ('numeryczne', ['2009', '2006', '2005']), ('wyliczeniowe', ['igla', 'idealny']), ('numeryczne', ['180000.87', '10100', '215000'])]
-#wierzchilek1 = BinNode([0,1,2,3,4])
-#print wierzchilek1.find_best_division(3,dane_test_X, dane_test_y)
 
 r = RandomForestClassifier(3)
 tree = r.create_decision_tree(dane_test_X, dane_test_y)
