@@ -200,15 +200,11 @@ class RandomForestClassifier:
         data_type, classifier_classes = analyse_input_data(X, y)
         self.training_data_type = data_type
 
-        #print data_type
-        #[('wyliczeniowe', ['Honda', 'Renault']), ('numeryczne', ['2007', '2009', '2006', '2010', '2005']), ('wyliczeniowe', ['igla', 'idealny']), ('numeryczne', ['200000', '180000.87', '10100', '215000', '130000'])]
-
         new_tree = True
         last_oob_errors = deque(maxlen=11)
 
         #zakladamy ze tylko dwie klasy
         #jako pierwsza w liscie ma byc klasa y[0] - wystepujaca w zbiorze treneigowym jako pierwsza
-
         self.classifier_classes = [y[0]]
         for c in classifier_classes:
             if c != y[0]:
@@ -217,12 +213,24 @@ class RandomForestClassifier:
         #klasyfikacje dokonane za pomoca k-1 drzew
         actual_classification_for_training_set = [Counter({self.classifier_classes[0] : 0, self.classifier_classes[1] : 0}) for i in range(m)]
 
+        #proporcje pomiedzy klasamy
+        prop = Counter(y)[self.classifier_classes[0]] / float(m)
+
         while new_tree:
 
-            #losowanie ze zwracaniem m przykladow ze zbioru treningowego
-            rows = np.random.choice(m, m, replace=True)
-            training_set = X[rows,:]
-            training_set_classes = y[rows]
+            losuj = True #zmienna odpowiadajaca za losowanie - sprawdzenie proporcji pomiedzy klasami
+
+            while losuj:
+                #losowanie ze zwracaniem m przykladow ze zbioru treningowego
+                rows = np.random.choice(m, m, replace=True)
+                training_set = X[rows,:]
+                training_set_classes = y[rows]
+
+                #sprawdzenie czy podobne proporcje pomiedzy klasami do tych w pelnym zbiorze treningowym
+                act_prop = Counter(training_set_classes)[self.classifier_classes[0]] / float(m)
+
+                if prop - 0.2 <= act_prop <= prop + 0.2:
+                    losuj = False
 
             #wiersze ktore nie sa w zbiorze treningowym - out of bag
             not_rows = list(set(range(m)).difference(rows))
