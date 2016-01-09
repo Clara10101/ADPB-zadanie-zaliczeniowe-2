@@ -9,7 +9,7 @@ class BinNode:
     Klasa reprezentujaca wezel w drzewie binarnym.
     """
 
-    def __init__(self, values, left=None, right=None, condition=None, decision=None):
+    def __init__(self, values, data_type, classifier_classes, left=None, right=None, condition=None, decision=None):
         """
         Inicjalizacja wszystkich potrzebnych parametrow. Podanie jedynie wyktora values jest niezbedne.
         """
@@ -19,6 +19,8 @@ class BinNode:
         self.values = values #obserwacje w danym wezle (ich numery wiersza w zbiorze treningowym X)
         self.condition = condition #warunek podzialu w wezle
         self.decision = decision #jesli wierzcholek jest lisciem to przypisywana jest mu decyzja klasyfikacji
+        self.training_data_type = data_type
+        self.classifier_classes = classifier_classes
 
     def is_leaf(self):
         """
@@ -54,8 +56,8 @@ class BinNode:
         if condition[0] != None and len(set(self.values_classes(y))) > 1:
 
             self.condition = condition[0]
-            self.left = BinNode(condition[1])
-            self.right = BinNode(condition[2])
+            self.left = BinNode(condition[1], self.training_data_type, self.classifier_classes)
+            self.right = BinNode(condition[2], self.training_data_type, self.classifier_classes)
 
             self.left.set_sons_values(n_features, X, y)
             self.right.set_sons_values(n_features, X, y)
@@ -76,8 +78,12 @@ class BinNode:
         """
 
         m, n = X.shape
-        data_type, classifier_classes = analyse_input_data(X, y)
-        random_features = random.sample(range(1, n), n_features)
+        data_type = self.training_data_type
+        classifier_classes = self.classifier_classes
+
+        #data_type, classifier_classes = analyse_input_data(X, y)
+
+        random_features = random.sample(range(0, n), n_features)
 
         best_division_condition = None; best_L_values = None; best_R_values = None;
         best_gini_impurity = inf
@@ -153,14 +159,18 @@ class BinTree:
     Klasa reprezentujaca binarne drzewo decyzyjne.
     """
 
-    def __init__(self, n_features, X, y):
+    def __init__(self, n_features, X, y, data_type, classifier_classes):
 
         m, n = X.shape
         self.n_features = n_features
         self.X = X
         self.y = y
 
-        self.node = BinNode([i for i in range(m)])
+        #typ danych na ktorych uczony byl klasyfikator tworzacy dane drzewo
+        self.training_data_type = data_type
+        self.classifier_classes = classifier_classes
+
+        self.node = BinNode([i for i in range(m)],self.training_data_type, self.classifier_classes)
         self.node.set_sons_values(n_features, X, y)
 
     def root(self):
@@ -179,12 +189,19 @@ class RandomForestClassifier:
     def __init__(self, n_features):
 
         self.n_features = n_features
-        self.forest = []
-        self.classifier_classes = []
+        self.forest = [] #tablica zawierajaca drzewa klasyfikujace
+        self.classifier_classes = [] #klasy klasyfikacji
+        self.training_data_type = [] #typ danych i przyjmowane wartosci dla kazdej kolumny
 
     def fit(self, X, y):
 
         m, n = X.shape
+
+        data_type, classifier_classes = analyse_input_data(X, y)
+        self.training_data_type = data_type
+
+        #print data_type
+        #[('wyliczeniowe', ['Honda', 'Renault']), ('numeryczne', ['2007', '2009', '2006', '2010', '2005']), ('wyliczeniowe', ['igla', 'idealny']), ('numeryczne', ['200000', '180000.87', '10100', '215000', '130000'])]
 
         new_tree = True
         last_oob_errors = deque(maxlen=11)
@@ -193,7 +210,7 @@ class RandomForestClassifier:
         #jako pierwsza w liscie ma byc klasa y[0] - wystepujaca w zbiorze treneigowym jako pierwsza
 
         self.classifier_classes = [y[0]]
-        for c in y:
+        for c in classifier_classes:
             if c != y[0]:
                 self.classifier_classes.append(c)
 
@@ -241,7 +258,30 @@ class RandomForestClassifier:
                 if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.01:
                     new_tree = False
 
+    def check_predict_data(self,X):
+        """
+        Sprawdzenie poprawnosci danych na ktorych przeprowadzana jest klasyfikacja
+        """
+
+        pred_data_type = analyse_input_data(X)
+
+        #sprawdzenie czy drugi wyiar jest rowny n
+        if X.shape[1] != len(self.training_data_type):
+            raise ValueError
+
+        for i in range(len(pred_data_type)):
+            #sprawdzenie czy typy kolumn zgadzaja sie z danymi treningowymi
+            if pred_data_type[i][0] != self.training_data_type[i][0]:
+                return ValueError
+            #sprawdzenie czy w kolumnie wyliczeniowej podano wartosc, ktora nie wystepowala w tej kolumnie w zbiorze uczacym
+            if pred_data_type[i][0] == 'wyliczeniowe':
+                for j in pred_data_type[i][1]:
+                    if j not in self.training_data_type[i][1]:
+                        return ValueError
+
     def predict(self,X):
+
+        self.check_predict_data(X)
 
         decisions = self.decisions_made_by_all_trees(X)
         forest_decisions = []
@@ -252,7 +292,11 @@ class RandomForestClassifier:
         return forest_decisions
 
     def predict_proba(self,X):
-        #zwraca wektor prawdopodobienstw przynaleznosci przykladow do pierwszej klasy - czyli do klasy wystepujacej w zbiorze treningowym jako pierwsza
+        """
+        Zwraca wektor prawdopodobienstw przynaleznosci przykladow do pierwszej klasy - czyli do klasy wystepujacej w zbiorze treningowym jako pierwsza
+        """
+
+        self.check_predict_data(X)
 
         decisions = self.decisions_made_by_all_trees(X)
         forest_proba_decisions = []
@@ -280,12 +324,12 @@ class RandomForestClassifier:
         Tworzy drzewo decyzyjne.
         """
 
-        tree = BinTree(self.n_features, X, y)
+        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes)
         return tree
 
 
 
-def analyse_input_data(X, y):
+def analyse_input_data(X, y=[]):
     """
     Sprawdza typ danych wejsciowych, jakiego typu sa cechy, czy numeryczne, cz wyliczeniowe i jakie wartosci przyjmuja
     :param X: dane treningowe, tablica numpy array wymiaru (m x n)
@@ -297,9 +341,10 @@ def analyse_input_data(X, y):
 
     data_type = [() for i in range(n)]
 
-    #sprawdzenie pierwszego wymiaru X i dlugosci y
-    if not m == len(y):
-        raise ValueError
+    if len(y) != 0:
+        #sprawdzenie pierwszego wymiaru X i dlugosci y
+        if not m == len(y):
+            raise ValueError
 
     for i in range(n):
         # sprawdzenie typu danych dla kazdej kolumny
@@ -311,13 +356,17 @@ def analyse_input_data(X, y):
         wartosci.extend(list(set(X[:, i])))
         data_type[i] = (typ, wartosci)
 
-    classifier_classes = list(set(y))
+    if len(y) != 0:
+        classifier_classes = list(set(y))
 
-    #sprawdzenie czy w wektorze y znajduja sie tylko dwie klasy
-    if not len(classifier_classes) <= 2:
-        raise ValueError
+        #sprawdzenie czy w wektorze y znajduja sie tylko dwie klasy
+        if not len(classifier_classes) <= 2:
+            raise ValueError
 
-    return data_type, classifier_classes
+    if len(y) != 0:
+        return data_type, classifier_classes
+    else:
+        return data_type
 
 
 def is_numeric(x):
@@ -363,7 +412,7 @@ dane_test_y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ'])
 #[('wyliczeniowe', ['Honda']), ('numeryczne', ['2009', '2006', '2005']), ('wyliczeniowe', ['igla', 'idealny']), ('numeryczne', ['180000.87', '10100', '215000'])]
 
 r = RandomForestClassifier(3)
-tree = r.create_decision_tree(dane_test_X, dane_test_y)
+#tree = r.create_decision_tree(dane_test_X, dane_test_y)
 #print tree.root()
 #print show(tree)
 
