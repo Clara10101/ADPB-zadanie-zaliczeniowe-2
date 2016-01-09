@@ -235,7 +235,6 @@ class RandomForestClassifier:
             #wiersze ktore nie sa w zbiorze treningowym - out of bag
             not_rows = list(set(range(m)).difference(rows))
             testing_set = X[not_rows,:]
-            #testing_set_classes = y[not_rows]
 
 
             tree = self.create_decision_tree(training_set, training_set_classes)
@@ -378,7 +377,7 @@ def analyse_input_data(X, y=[]):
 
 
 def is_numeric(x):
-    return x.replace('.', '', 1).isdigit()
+    return str(x).replace('.', '', 1).isdigit()
 
 def gini(n, nl, nr, nl0, nl1, nr0, nr1):
     """
@@ -407,27 +406,3 @@ def showR(node, prefix=''):
 
 def show(tree):
     return showR(tree.root())
-
-
-
-# Dane testowe
-dane_test_X = np.array(
-    [['Honda', 2009, 'igla', 180000.87], ['Honda', 2005, 'igla', 10100], ['Honda', 2006, 'idealny', 215000], ['Renault', 2010, 'igla', 130000], ['Renault', 2007, 'idealny', 200000]])
-dane_test_y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ'])
-
-#analyse_input_data(dane_test_X, dane_test_y)
-#przykladowy wynik wywolania
-#[('wyliczeniowe', ['Honda']), ('numeryczne', ['2009', '2006', '2005']), ('wyliczeniowe', ['igla', 'idealny']), ('numeryczne', ['180000.87', '10100', '215000'])]
-
-r = RandomForestClassifier(3)
-#tree = r.create_decision_tree(dane_test_X, dane_test_y)
-#print tree.root()
-#print show(tree)
-
-przyklad_testowy = ['Renault', 2005, 'bezkolizyjny', 215000]
-#print tree.classify(przyklad_testowy)
-
-r.fit(dane_test_X,dane_test_y)
-print r.forest
-print r.predict(dane_test_X)
-print r.predict_proba(dane_test_X)
