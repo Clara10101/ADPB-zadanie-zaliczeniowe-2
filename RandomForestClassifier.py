@@ -42,7 +42,7 @@ class BinNode:
         elif which == 'R':
             return self.right
 
-    def set_sons_values(self, n_features, X, y):
+    def set_sons_values(self, n_features, X, y, which='C'):
         """
         Przypisanie rekurencyjnie obserwacji do synow korzenia na podstawie wybranego najlepszego kryterium podzialu
         :param n_features: liczba calkowita wieksza od 1 i mniejsza od liczby wszystkich obserwacji w danych treningowych
@@ -50,25 +50,44 @@ class BinNode:
         :param y: wektor klasyfikacji dla danych treningowych, numpy array
         """
 
-        condition = self.find_best_division(n_features, X, y)
+        condition = self.find_best_division(n_features, X, y, which)
 
-        #jesli podzial jest mozliwy i potrzebny
-        if condition[0] != None and len(set(self.values_classes(y))) > 1:
+        if which == 'C': #Klasyfikacja
 
-            self.condition = condition[0]
-            self.left = BinNode(condition[1], self.training_data_type, self.classifier_classes)
-            self.right = BinNode(condition[2], self.training_data_type, self.classifier_classes)
+            #jesli podzial jest mozliwy i potrzebny
+            if condition[0] != None and len(set(self.values_classes(y))) > 1:
 
-            self.left.set_sons_values(n_features, X, y)
-            self.right.set_sons_values(n_features, X, y)
+                self.condition = condition[0]
+                self.left = BinNode(condition[1], self.training_data_type, self.classifier_classes)
+                self.right = BinNode(condition[2], self.training_data_type, self.classifier_classes)
 
-        if len(set(self.values_classes(y))) == 1:
-            self.decision = list(set(self.values_classes(y)))[0]
+                self.left.set_sons_values(n_features, X, y, which='C')
+                self.right.set_sons_values(n_features, X, y, which='C')
+
+            if len(set(self.values_classes(y))) == 1:
+                self.decision = list(set(self.values_classes(y)))[0]
+
+        if which == 'R': #Regresja
+
+            if condition[0] != None and len(set(self.values_classes(y))) > 3:
+
+                self.condition = condition[0]
+
+                self.left = BinNode(condition[1], self.training_data_type, self.classifier_classes)
+                self.right = BinNode(condition[2],self.training_data_type, self.classifier_classes)
+
+                self.left.set_sons_values(n_features, X, y, which='R')
+                self.right.set_sons_values(n_features, X, y, which='R')
+
+
+            if len(set(self.values_classes(y))) <= 3:
+                self.decision = np.average(self.values_classes(y))
+
 
     def values_classes(self, y):
         return y[self.values]
 
-    def find_best_division(self, n_features, X, y):
+    def find_best_division(self, n_features, X, y, which='C'):
         """
         Wyznacza optymalny podzial w wezle.
         Dla kazdego wierzcholka losowanych jest n_features cech i dla nich sprawdzane sa wszystkie mozliwe wartosci kryterium optymalnosci Gini impurity.
@@ -86,7 +105,11 @@ class BinNode:
         random_features = random.sample(range(0, n), n_features)
 
         best_division_condition = None; best_L_values = None; best_R_values = None;
+
+        #Najlepszy gini_impunity lub rss w zaleznosci od tego ktory rodzaj klasyfikacji
         best_gini_impurity = inf
+        best_rss = inf
+
         n_all = len(self.values)
 
         #sprawdzenie wszystkich mozliwych wartosci dla kazdej z wylosowanych cech
@@ -108,21 +131,36 @@ class BinNode:
                             R_values.append(value)
 
                 n_L = len(L_values); n_R = len(R_values)
-                n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
-                n_L1 = n_all - n_L0
-                n_R0 = sum([val == classifier_classes[0] for val in y[R_values]])
-                n_R1 = n_all - n_R0
 
-                #interesuje nas tylko podzial dzie kazdy z synow ma przypisane jakies obserwacje
-                if n_L != 0 and n_R != 0:
-                    gini_impurity = gini(n_all,n_L,n_R,n_L0,n_L1,n_R0,n_R1)
+                if which == 'C': #Klasyfikacja
 
-                    #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje gini
-                    if gini_impurity < best_gini_impurity:
-                        best_gini_impurity = gini_impurity
-                        best_division_condition = (i,j,data_type[i][0])
-                        best_L_values = L_values
-                        best_R_values = R_values
+                    n_L0 = sum([val == classifier_classes[0] for val in y[L_values]])
+                    n_L1 = n_all - n_L0
+                    n_R0 = sum([val == classifier_classes[0] for val in y[R_values]])
+                    n_R1 = n_all - n_R0
+
+                    #interesuje nas tylko podzial gdzie kazdy z synow ma przypisane jakies obserwacje
+                    if n_L != 0 and n_R != 0:
+                        gini_impurity = gini(n_all,n_L,n_R,n_L0,n_L1,n_R0,n_R1)
+
+                        #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje gini
+                        if gini_impurity < best_gini_impurity:
+                            best_gini_impurity = gini_impurity
+                            best_division_condition = (i,j,data_type[i][0])
+                            best_L_values = L_values
+                            best_R_values = R_values
+
+                if which == 'R':
+
+                    #interesuje nas tylko podzial gdzie kazdy z synow ma przypisane jakies obserwacje
+                    if n_L != 0 and n_R != 0:
+                        rss = RSS({"L": L_values,"R":R_values})
+                        #sprawdzenie czy do tej pory najlepszy warunek - minimalizuje rss
+                        if rss < best_rss:
+                            best_division_condition = (i,j,data_type[i][0])
+                            best_L_values = L_values
+                            best_R_values = R_values
+
 
         return best_division_condition, best_L_values, best_R_values
 
@@ -159,7 +197,7 @@ class BinTree:
     Klasa reprezentujaca binarne drzewo decyzyjne.
     """
 
-    def __init__(self, n_features, X, y, data_type, classifier_classes):
+    def __init__(self, n_features, X, y, data_type, classifier_classes, which='C'):
 
         m, n = X.shape
         self.n_features = n_features
@@ -171,7 +209,7 @@ class BinTree:
         self.classifier_classes = classifier_classes
 
         self.node = BinNode([i for i in range(m)],self.training_data_type, self.classifier_classes)
-        self.node.set_sons_values(n_features, X, y)
+        self.node.set_sons_values(n_features, X, y, which='C')
 
     def root(self):
         return self.node
@@ -185,6 +223,7 @@ class RandomForestClassifier:
     """
     Klasa wykonujaca klasyfikacje za pomoca lasu losowego.
     """
+    #w create_decision_tree jest obecnie which='C' dlatego bedzie to tylko dla lasyfikacji
 
     def __init__(self, n_features):
 
@@ -331,7 +370,8 @@ class RandomForestClassifier:
         Tworzy drzewo decyzyjne.
         """
 
-        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes)
+        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which='C')
+
         return tree
 
 
@@ -393,6 +433,15 @@ def gini(n, nl, nr, nl0, nl1, nr0, nr1):
     """
     return (nl / n) * (nl0 / nl * (1 - nl0 / nl) + nl1 / nl * (1 - nl1 / nl)) + (nr / n) * (
     nr0 / nr * (1 - nr0 / nr) + nr1 / nr * (1 - nr1 / nr))
+
+
+def RSS(data):
+
+        y1, y2 = [np.average(data[key]) for key in data]
+        s1 = sum([(y1-yi)**2 for yi in list(data.values())[0]])
+        s2 = sum([(y1-yi)**2 for yi in list(data.values())[1]])
+
+        return s1+s2
 
 def showR(node, prefix=''):
     """
