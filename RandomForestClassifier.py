@@ -5,22 +5,35 @@ from collections import deque, Counter
 inf = float('inf')
 
 class BinNode:
+    """
+    Klasa reprezentujaca wezel w drzewie binarnym.
+    """
 
     def __init__(self, values, left=None, right=None, condition=None, decision=None):
+        """
+        Inicjalizacja wszystkich potrzebnych parametrow. Podanie jedynie wyktora values jest niezbedne.
+        """
 
         self.left = left
         self.right = right
-        self.values = values
-        self.condition = condition
-        self.decision = decision
+        self.values = values #obserwacje w danym wezle (ich numery wiersza w zbiorze treningowym X)
+        self.condition = condition #warunek podzialu w wezle
+        self.decision = decision #jesli wierzcholek jest lisciem to przypisywana jest mu decyzja klasyfikacji
 
     def is_leaf(self):
+        """
+        Sprawdzenie czy wezel jest lisciem
+        """
 
         if self.son("L") == None and self.son("R") == None:
             return True
         return False
 
     def son(self, which):
+        """
+        Zwraca wybranego syna wezla.
+        :param which: 'L' lub 'R'
+        """
 
         if which == 'L':
             return self.left
@@ -28,6 +41,12 @@ class BinNode:
             return self.right
 
     def set_sons_values(self, n_features, X, y):
+        """
+        Przypisanie rekurencyjnie obserwacji do synow korzenia na podstawie wybranego najlepszego kryterium podzialu
+        :param n_features: liczba calkowita wieksza od 1 i mniejsza od liczby wszystkich obserwacji w danych treningowych
+        :param X: dane treningowe, tablica numpy array, w ktorej kazdy wiersz odpowiada jednej obserwacji
+        :param y: wektor klasyfikacji dla danych treningowych, numpy array
+        """
 
         condition = self.find_best_division(n_features, X, y)
 
@@ -48,11 +67,13 @@ class BinNode:
         return y[self.values]
 
     def find_best_division(self, n_features, X, y):
-        #wyznaczenie optymalnego podzialu w wezle
-        #Dla kazdego wierzcholka bedziemy losowali n_features cech i tylko dla nich bedziemy sprawdzali wszystkie mozliwe wartosci
-        #kryterium optymalnosci Gini impurity
-        #zwraca krotke postaci ((kolumna dla kryterium podzialu, kryterium podzialu, typ kolumny podzialu liczbowy/wyliczeniowy), obserwacje w lewym synu, obserwacje w prawym synu)
-        #jesli nie ma mozliwosci ustanowienia takiego podzialu aby kazdy z synow zawieral jakies wartosci krotka postaci (None, None, None)
+        """
+        Wyznacza optymalny podzial w wezle.
+        Dla kazdego wierzcholka losowanych jest n_features cech i dla nich sprawdzane sa wszystkie mozliwe wartosci kryterium optymalnosci Gini impurity.
+        Zwraca krotke postaci ((kolumna dla kryterium podzialu, kryterium podzialu, typ kolumny podzialu liczbowy/wyliczeniowy), obserwacje w lewym synu, obserwacje w prawym synu)
+        oraz wynik alalizy danych wejsciowych,
+        jesli nie ma mozliwosci ustanowienia takiego podzialu aby kazdy z synow zawieral jakies wartosci zwracana jest krotka postaci (None, None, None)
+        """
 
         m, n = X.shape
         data_type, classifier_classes = analyse_input_data(X, y)
@@ -100,7 +121,10 @@ class BinNode:
         return best_division_condition, best_L_values, best_R_values
 
     def classify(self,v):
-        #klasyfikuje wektor v na podstawie drzewa zawieszonego w wierzcholku self
+        """
+        Klasyfikuje wektor v na podstawie drzewa zawieszonego w wierzcholku self.
+        :param v: wektor postaci numpy array
+        """
 
         if not self.is_leaf():
             if self.condition[2] == 'numeryczne':
@@ -125,6 +149,9 @@ class BinNode:
 
 
 class BinTree:
+    """
+    Klasa reprezentujaca binarne drzewo decyzyjne.
+    """
 
     def __init__(self, n_features, X, y):
 
@@ -145,6 +172,9 @@ class BinTree:
 
 
 class RandomForestClassifier:
+    """
+    Klasa wykonujaca klasyfikacje za pomoca lasu losowego.
+    """
 
     def __init__(self, n_features):
 
@@ -246,6 +276,9 @@ class RandomForestClassifier:
         return decisions
 
     def create_decision_tree(self, X, y):
+        """
+        Tworzy drzewo decyzyjne.
+        """
 
         tree = BinTree(self.n_features, X, y)
         return tree
@@ -257,10 +290,17 @@ def analyse_input_data(X, y):
     Sprawdza typ danych wejsciowych, jakiego typu sa cechy, czy numeryczne, cz wyliczeniowe i jakie wartosci przyjmuja
     :param X: dane treningowe, tablica numpy array wymiaru (m x n)
     :param y: klasy dla zbioru treningowego, numpy array dlugosci m
-    :return:
+    :return: krotka postaci ([(typ_kolumna_0,wartosci_kolumna_0), ... , (typ_kolumna_n,wartosci_kolumna_n)],[klasa1,klasa2])
     """
+
     m, n = X.shape
+
     data_type = [() for i in range(n)]
+
+    #sprawdzenie pierwszego wymiaru X i dlugosci y
+    if not m == len(y):
+        raise ValueError
+
     for i in range(n):
         # sprawdzenie typu danych dla kazdej kolumny
         wartosci = []
@@ -270,34 +310,39 @@ def analyse_input_data(X, y):
             typ = "wyliczeniowe"
         wartosci.extend(list(set(X[:, i])))
         data_type[i] = (typ, wartosci)
-    #print data_type
+
     classifier_classes = list(set(y))
+
+    #sprawdzenie czy w wektorze y znajduja sie tylko dwie klasy
+    if not len(classifier_classes) <= 2:
+        raise ValueError
+
     return data_type, classifier_classes
 
 
 def is_numeric(x):
     return x.replace('.', '', 1).isdigit()
 
-
-'''
-Trzeba wybrac ceche ktora najlepiej podzieli zbior.
-Losujemy n_features i z nich wybieramy za pomoca kryterium Gini impurity
-'''
-
-'''
-gini = kryterium optymalnosci Gini impurity.
-n - liczba wszystkich przykladow
-nl, nr - liczba przykladow, ktore po podziale trafia do lewego i prawego syna
-nl0, nl1 - liczba przykladow z pierwszej i drugiej klasy w lewym synu
-np0, np1 - analogicznie jakw wyzej tylko dla prawego syna
-'''
-
-
 def gini(n, nl, nr, nl0, nl1, nr0, nr1):
+    """
+    Wyznacza kryterium optymalnosci Gini impurity
+    :param n: liczba wszystkich przykladow
+    :param nl: liczba przykladow, ktore po podziale trafia do lewego syna
+    :param nr: liczba przykladow, ktore po podziale trafia do prawego syna
+    :param nl0: liczba przykladow z pierwszej klasy w lewym synu
+    :param nl1: liczba przykladow z drugiej klasy w lewym synu
+    :param nr0: liczba przykladow z pierwszej klasy w prawym synu
+    :param nr1: liczba przykladow z drugiej klasy w prawym synu
+    :return: wartosc gini impurity
+    """
     return (nl / n) * (nl0 / nl * (1 - nl0 / nl) + nl1 / nl * (1 - nl1 / nl)) + (nr / n) * (
     nr0 / nr * (1 - nr0 / nr) + nr1 / nr * (1 - nr1 / nr))
 
 def showR(node, prefix=''):
+    """
+    Rysuje w sposob rekurencyjny drzewo.
+    """
+
     if node.is_leaf():
         return prefix + '-' + str(node) + '\n'
     else:
