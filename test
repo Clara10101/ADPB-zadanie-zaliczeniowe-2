@@ -49,5 +49,4 @@ def test():
     pickle.dump(np.array(km),kmer_file)
     kmer_file.close()
 
-
 test()
