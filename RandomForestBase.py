@@ -8,6 +8,10 @@ class RandomForestBase:
     __metaclass__ = ABCMeta
 
     def __init__(self, n_features):
+
+        if not (isinstance( n_features, ( int ) ) or n_features < 1):
+            raise ValueError
+
         self.n_features = n_features
         self.forest = [] #tablica zawierajaca drzewa klasyfikujace
         self.training_data_type = [] #typ danych i przyjmowane wartosci dla kazdej kolumny
