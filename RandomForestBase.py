@@ -33,6 +33,17 @@ class RandomForestBase:
                     if j not in self.training_data_type[i][1]:
                         return ValueError
 
+    def create_decision_tree(self, X, y, which):
+        """
+        Tworzy drzewo decyzyjne.
+        """
+        if which == 'C':
+            tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which)
+        else:
+            tree = BinTree(self.n_features, X, y, self.training_data_type, which)
+
+        return tree
+
     @abstractmethod
     def fit(self, X, y):
         """
@@ -43,12 +54,6 @@ class RandomForestBase:
     def predict(self, X):
         """
         Zwraca wynik klasyfikacji X.
-        """
-
-    @abstractmethod
-    def create_decision_tree(self, X, y, which):
-        """
-        Tworzy pojedyncze drzewo decyzyjne.
         """
 
     @abstractmethod

@@ -1,6 +1,6 @@
 __author__ = 'Klara'
 
-import RandomForestClassifier
+import RandomForestClassifier, RandomForestRegressor
 import numpy as np
 from sklearn import datasets
 
@@ -26,10 +26,17 @@ cars_testing_X = np.array(
      ['Renault', 2000, 'igla', 1560000]
     ])
 
-r1 = RandomForestClassifier.RandomForestClassifier(3)
+#Cars test dla klasyfikacji
+"""r1 = RandomForestClassifier.RandomForestClassifier(3)
 r1.fit(cars_training_X,cars_training_y)
 print r1.predict(cars_testing_X)
-print r1.predict_proba(cars_testing_X)
+print r1.predict_proba(cars_testing_X)"""
+
+#Cars test dla regresji
+r = RandomForestRegressor.RandomForestRegressor(3)
+r.fit(cars_training_X, cars_training_z)
+print "Test regresja"
+print r.predict(cars_training_X)
 
 #Test dla danych iris
 iris = datasets.load_iris()

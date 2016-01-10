@@ -126,15 +126,6 @@ class RandomForestClassifier(RandomForestBase):
 
         return decisions
 
-    def create_decision_tree(self, X, y, which='C'):
-        """
-        Tworzy drzewo decyzyjne.
-        """
-
-        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which)
-
-        return tree
-
 
 
 def showR(node, prefix=''):

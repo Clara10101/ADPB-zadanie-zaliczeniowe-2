@@ -4,7 +4,7 @@ class RandomForestRegressor(RandomForestBase):
 
     def __init__(self, n_features):
 
-        super(RandomForestClassifier, self).__init__(n_features)
+        super(RandomForestRegressor, self).__init__(n_features)
 
     def fit(self, X, y):
         """
@@ -14,6 +14,9 @@ class RandomForestRegressor(RandomForestBase):
         """
 
         m, n = X.shape
+
+        data_type = analyse_input_data(X)
+        self.training_data_type = data_type
 
         #sprawdzenie czy wektor y zawiera wartosci nienumeryczne i czy ma odpowiednia dlugosc
         if not (all(map(is_numeric , y)) or len(y) != m):
@@ -40,7 +43,7 @@ class RandomForestRegressor(RandomForestBase):
             testing_set_X = X[not_rows,:]
             testing_set_y = y[not_rows]
 
-            tree = self.create_decision_tree(training_set_X, training_set_y, 'R')
+            tree = self.create_decision_tree(training_set_X, training_set_y, which='R')
             self.forest.append(tree)
 
             #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
@@ -48,7 +51,7 @@ class RandomForestRegressor(RandomForestBase):
                 decisions[i].append(tree.classify(X[i, :]))
 
             ###r2 jako warunek zakonczenia uczenia lasow losowych dla regresji
-            r2_score = sum(np.mean(decisions[i]) - mean_y for i in range(m))**2 / float(sum(y[i] - mean_y for i in range(m))**2)
+            r2_score = sum((np.mean(decisions[i]) - mean_y)**2 for i in range(m) if decisions[i]) / float(sum((y[i] - mean_y)**2 for i in range(m)))
             last_oob_errors.append(r2_score)
 
             #sprawdzenie czy mozna zakonczyc proces uczenia nowych drzew
@@ -73,6 +76,9 @@ class RandomForestRegressor(RandomForestBase):
         return forest_decisions
 
     def decisions_made_by_all_trees(self,X):
+        """
+        Zwraca liste zawierajaca decyzje podjete przez kazde drzewo w lesie.
+        """
 
         m, n = X.shape
 

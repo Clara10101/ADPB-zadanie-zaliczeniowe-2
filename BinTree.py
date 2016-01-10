@@ -8,7 +8,7 @@ class BinNode:
     Klasa reprezentujaca wezel w drzewie binarnym.
     """
 
-    def __init__(self, values, data_type, classifier_classes, left=None, right=None, condition=None, decision=None):
+    def __init__(self, values, data_type, classifier_classes=None, left=None, right=None, condition=None, decision=None):
         """
         Inicjalizacja wszystkich potrzebnych parametrow. Podanie jedynie wyktora values jest niezbedne.
         """
@@ -86,7 +86,7 @@ class BinNode:
     def values_classes(self, y):
         return y[self.values]
 
-    def find_best_division(self, n_features, X, y, which='C'):
+    def find_best_division(self, n_features, X, y, which):
         """
         Wyznacza optymalny podzial w wezle.
         Dla kazdego wierzcholka losowanych jest n_features cech i dla nich sprawdzane sa wszystkie mozliwe wartosci kryterium optymalnosci Gini impurity.
@@ -101,7 +101,7 @@ class BinNode:
 
         #data_type, classifier_classes = analyse_input_data(X, y)
 
-        random_features = random.sample(range(0, n), n_features)
+        random_features = random.sample(range(0, n-1), n_features)
 
         best_division_condition = None; best_L_values = None; best_R_values = None;
 
@@ -208,7 +208,7 @@ class BinTree:
         self.classifier_classes = classifier_classes
 
         self.node = BinNode([i for i in range(m)],self.training_data_type, self.classifier_classes)
-        self.node.set_sons_values(n_features, X, y, which='C')
+        self.node.set_sons_values(n_features, X, y, which)
 
     def root(self):
         return self.node
