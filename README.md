@@ -24,7 +24,6 @@ Poniżej można znaleźć kilka przykładów wykorzystania modułu:
 ```
 import RandomForestClassifier, RandomForestRegressor
 import numpy as np
-from sklearn import datasets
 
 cars_training_X = np.array(
     [['Honda', 2009, 'igla', 180000.87],
