@@ -6,7 +6,6 @@ class RandomForestClassifier(RandomForestBase):
     """
     Klasa wykonujaca klasyfikacje za pomoca lasu losowego.
     """
-    #w create_decision_tree jest obecnie which='C' dlatego bedzie to tylko dla klasyfikacji
 
     def __init__(self, n_features):
 
@@ -55,14 +54,14 @@ class RandomForestClassifier(RandomForestBase):
 
             #wiersze ktore nie sa w zbiorze treningowym - out of bag
             not_rows = list(set(range(m)).difference(rows))
-            testing_set = X[not_rows,:]
+            #testing_set = X[not_rows,:]
 
             tree = self.create_decision_tree(training_set, training_set_classes, 'C')
             self.forest.append(tree)
 
             #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
-            for i,row in enumerate(testing_set):
-                decision = tree.classify(row)
+            for i in not_rows:
+                decision = tree.classify(X[i, :])
                 actual_classification_for_training_set[i][decision] += 1
 
             true_sum = 0
