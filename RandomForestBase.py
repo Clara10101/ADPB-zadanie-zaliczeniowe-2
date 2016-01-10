@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from BinTree import *
 
 class RandomForestBase:
     """

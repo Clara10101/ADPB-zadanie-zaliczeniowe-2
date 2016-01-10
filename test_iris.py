@@ -18,6 +18,8 @@ cars_training_X = np.array(
 
 cars_training_y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ', 'NIE_KUPUJ', 'KUP', 'KUP'])
 
+cars_training_z = np.array([180000, 10100, 215000,130000, 200000, 13000,15000,21000])
+
 cars_testing_X = np.array(
     [['Ford', 2007, 'idealny', 230000],
      ['Fiat', 2014, 'bezkolizyjny', 198000],
