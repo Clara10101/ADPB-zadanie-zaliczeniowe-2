@@ -22,6 +22,12 @@ class RandomForestRegressor(RandomForestBase):
         new_tree = True
         last_oob_errors = deque(maxlen=11)
 
+        #decyzje podjete przez kazde drzewo dla kazdego wiersza obserwacji
+        decisions = [[] for i in range(m)]
+
+        #srednia wartosc y
+        mean_y = np.mean(y)
+
         while new_tree:
 
             #losowanie ze zwracaniem m przykladow ze zbioru treningowego
@@ -37,18 +43,12 @@ class RandomForestRegressor(RandomForestBase):
             tree = self.create_decision_tree(training_set_X, training_set_y, 'R')
             self.forest.append(tree)
 
-            #wartosci przypisane przez aktualne drzewo
-            decisions = []
-
             #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
-            for row in testing_set_X:
-                decisions.append(tree.classify(row))
+            for i in not_rows:
+                decisions[i].append(tree.classify(X[i, :]))
 
-            ###Poprawic warunek stopu dla tworzenia nowych drzew i obliczanie r2
-
-            mean_y = np.mean(testing_set_y)
-            r2_score = sum(decisions[i] - mean_y for i in range(len(testing_set_y)))**2 / float(sum(testing_set_y[i] - mean_y for i in range(len(testing_set_y)))**2)
-
+            ###r2 jako warunek zakonczenia uczenia lasow losowych dla regresji
+            r2_score = sum(np.mean(decisions[i]) - mean_y for i in range(m))**2 / float(sum(y[i] - mean_y for i in range(m))**2)
             last_oob_errors.append(r2_score)
 
             #sprawdzenie czy mozna zakonczyc proces uczenia nowych drzew
