@@ -281,4 +281,3 @@ def analyse_input_data(X, y=[]):
         return data_type, classifier_classes
     else:
         return data_type
-

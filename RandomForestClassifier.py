@@ -1,10 +1,8 @@
-import numpy as np
-import random
 from collections import deque, Counter
 from BinTree import *
+from RandomForestBase import *
 
-
-class RandomForestClassifier:
+class RandomForestClassifier(RandomForestBase):
     """
     Klasa wykonujaca klasyfikacje za pomoca lasu losowego.
     """
@@ -12,10 +10,8 @@ class RandomForestClassifier:
 
     def __init__(self, n_features):
 
-        self.n_features = n_features
-        self.forest = [] #tablica zawierajaca drzewa klasyfikujace
+        super(RandomForestClassifier, self).__init__(n_features)
         self.classifier_classes = [] #klasy klasyfikacji
-        self.training_data_type = [] #typ danych i przyjmowane wartosci dla kazdej kolumny
 
     def fit(self, X, y):
 
@@ -44,7 +40,8 @@ class RandomForestClassifier:
 
             losuj = True #zmienna odpowiadajaca za losowanie - sprawdzenie proporcji pomiedzy klasami
 
-            while losuj:
+            while losuj: #losowanie dopoki proporcje pomiedzy klasami nie sa podobne
+
                 #losowanie ze zwracaniem m przykladow ze zbioru treningowego
                 rows = np.random.choice(m, m, replace=True)
                 training_set = X[rows,:]
@@ -60,8 +57,7 @@ class RandomForestClassifier:
             not_rows = list(set(range(m)).difference(rows))
             testing_set = X[not_rows,:]
 
-
-            tree = self.create_decision_tree(training_set, training_set_classes)
+            tree = self.create_decision_tree(training_set, training_set_classes, 'C')
             self.forest.append(tree)
 
             #dla kazdej obserwacji sprawdzamy decyzje utworzone przez dodane drzewo
@@ -85,30 +81,10 @@ class RandomForestClassifier:
             last_oob_errors.append(oob_error)
 
             #sprawdzenie czy mozna zakonczyc proces uczenia nowych drzew
+            #wyliczenie bledu oob
             if len(last_oob_errors) == 11:
                 if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.01:
                     new_tree = False
-
-    def check_predict_data(self,X):
-        """
-        Sprawdzenie poprawnosci danych na ktorych przeprowadzana jest klasyfikacja
-        """
-
-        pred_data_type = analyse_input_data(X)
-
-        #sprawdzenie czy drugi wyiar jest rowny n
-        if X.shape[1] != len(self.training_data_type):
-            raise ValueError
-
-        for i in range(len(pred_data_type)):
-            #sprawdzenie czy typy kolumn zgadzaja sie z danymi treningowymi
-            if pred_data_type[i][0] != self.training_data_type[i][0]:
-                return ValueError
-            #sprawdzenie czy w kolumnie wyliczeniowej podano wartosc, ktora nie wystepowala w tej kolumnie w zbiorze uczacym
-            if pred_data_type[i][0] == 'wyliczeniowe':
-                for j in pred_data_type[i][1]:
-                    if j not in self.training_data_type[i][1]:
-                        return ValueError
 
     def predict(self,X):
 
@@ -148,16 +124,18 @@ class RandomForestClassifier:
             for tree in self.forest:
                 decision = tree.classify(row)
                 decisions[i][decision] += 1
+
         return decisions
 
-    def create_decision_tree(self, X, y):
+    def create_decision_tree(self, X, y, which='C'):
         """
         Tworzy drzewo decyzyjne.
         """
 
-        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which='C')
+        tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which)
 
         return tree
+
 
 
 def showR(node, prefix=''):
