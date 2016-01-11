@@ -53,7 +53,7 @@ def test():
         kmers_in_seq.append(k_n)
         y.append('random')
     kmers_in_seq=delete_not_occuring_kmer(np.array(kmers_in_seq))
-    return kmers_in_seq, y
+    return kmers_in_seq, np.array(y)
 
 
 kmer,y=test()
