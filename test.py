@@ -30,7 +30,7 @@ def delete_not_occuring_kmer(arr):
                 tmp=True
                 break
         if tmp==False:
-            arr=np.delete(arr,i,0)
+            arr=np.delete(arr,i,1)
     return arr
 
 
