@@ -1,7 +1,6 @@
 __author__ = 'MagdaTarka'
-
-from itertools import product, chain
-import pickle
+import RandomForestClassifier
+from itertools import product
 import numpy as np
 
 def read_file(a): #wczytanie danych z pliku
@@ -22,7 +21,7 @@ def generate_kmers(k): #generuje wszystkie k-mery zlozone z liter A, C, T, G dlu
         kmers.append(kmer)
     return kmers
 
-def delete_not_occuring_kmer(arr):
+def delete_not_occuring_kmer(arr): #usuwanie tych kolumn ktore odpowiadaja kmerom ktore nie wystepuja w zadnej z sekwencji
     for i in range(len(arr[0])):
         for j in arr:
             tmp=False
@@ -57,3 +56,16 @@ def test():
 
 
 kmer,y=test()
+c = RandomForestClassifier.RandomForestClassifier(204)
+c.fit(kmer,y)
+d=c.predict(kmer)
+c.predict_proba(kmer)
+
+t=0
+f=0
+for i in range(len(d)):
+    if d[i]==y[i]:
+        t=t+1
+    else:
+        f=f+1
+print 'Klasyfikowano',len(d),'sekwencji. Poprawna klasyfikacja w:',t,'przypadkach. Bledna klasyfikacja w:',f,'przypadkach. Klasyfikator dziala poprawnie dla',float(t)/float(t+f)*100,'% przykladow.'
