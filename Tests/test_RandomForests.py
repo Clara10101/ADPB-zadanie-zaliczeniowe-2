@@ -271,6 +271,8 @@ class TestTree(unittest.TestCase):
         self.assertEquals(tree.node.left.is_leaf(), True)
         self.assertEquals(tree.node.right.is_leaf(), True)
 
+		
+
 
 if __name__ == '__main__':
     unittest.main()
