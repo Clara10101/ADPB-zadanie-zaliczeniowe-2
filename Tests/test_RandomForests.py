@@ -231,7 +231,7 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree.root(), BinNode)
         self.assertEquals(tree.node.left.is_leaf(), True)
         self.assertEquals(tree.node.right.is_leaf(), True)
-<<<<<<< HEAD
+
 		
 	def test_find_best_division(self):
         "Test funkcji znajdujacej najlepszy podzial zbioru dla wezla"
@@ -253,10 +253,7 @@ class TestTree(unittest.TestCase):
         self.assertEquals(fbd,(None, None, None))
 
 		
-=======
 
-
->>>>>>> origin/master
 if __name__ == '__main__':
     unittest.main()
 
