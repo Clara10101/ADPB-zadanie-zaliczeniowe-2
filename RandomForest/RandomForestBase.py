@@ -44,7 +44,7 @@ class RandomForestBase:
         if which == 'C':
             tree = BinTree(self.n_features, X, y, self.training_data_type, self.classifier_classes, which)
         else:
-            tree = BinTree(self.n_features, X, y, self.training_data_type, which)
+            tree = BinTree(self.n_features, X, y, self.training_data_type, None, which)
 
         return tree
 
