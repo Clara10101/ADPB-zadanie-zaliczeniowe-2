@@ -125,18 +125,3 @@ class RandomForestClassifier(RandomForestBase):
                 decisions[i][decision] += 1
 
         return decisions
-
-
-
-def showR(node, prefix=''):
-    """
-    Rysuje w sposob rekurencyjny drzewo.
-    """
-
-    if node.is_leaf():
-        return prefix + '-' + str(node) + '\n'
-    else:
-        return showR(node.son('L'),prefix+'   ') + prefix + '-<' + '\n' + showR(node.son('R'),prefix+'   ')
-
-def show(tree):
-    return showR(tree.root())
