@@ -178,20 +178,21 @@ class TestSetSonsValues(unittest.TestCase):
 
     X = np.array(
         [['Honda', 2009, 'igla', 180000.87],
-         ['Honda', 2005, 'igla', 10100]])
+         ['Honda', 2005, 'igla', 10100],
+         ['Honda', 2006, 'idealny', 215000],
+         ['Renault', 2010, 'igla', 130000]])
 
-    y = np.array(['KUP', 'NIE_KUPUJ'])
+    y = np.array(['KUP', 'NIE_KUPUJ','NIE_KUPUJ', 'KUP'])
 
-    z = np.array([180000, 10100])
+    z = np.array([180000, 10100, 215000, 130000])
 
     data_type, classifier_classes = analyse_input_data(X, y)
 
-    def test_set_sons_values(self):
-
-        node = BinNode([0,1], self.data_type, self.classifier_classes)
+    def test_set_sons_values_1(self):
+        node = BinNode([0, 1], self.data_type, self.classifier_classes)
         random.seed(99)
 
-        #przed wywolaniem metody set_sons_values lewy i prawy syn wierzcholka powinny byc None
+        # przed wywolaniem metody set_sons_values lewy i prawy syn wierzcholka powinny byc None
         left_son_before = node.son("L")
         self.assertIsNone(left_son_before)
         right_son_before = node.son("R")
@@ -200,8 +201,8 @@ class TestSetSonsValues(unittest.TestCase):
         #po wywolaniu metody powinny byc to wierzcholki
         node.set_sons_values(3, self.X, self.y, which='C')
 
-        self.assertIsInstance(node.son("L"),BinNode)
-        self.assertIsInstance(node.son("R"),BinNode)
+        self.assertIsInstance(node.son("L"), BinNode)
+        self.assertIsInstance(node.son("R"), BinNode)
 
         actual_left_son_values = node.son("L").values
         actual_right_son_values = node.son("R").values
@@ -209,8 +210,8 @@ class TestSetSonsValues(unittest.TestCase):
         expected_left_son_values = [1]
         expected_right_son_values = [0]
 
-        self.assertEqual(actual_left_son_values,expected_left_son_values)
-        self.assertEqual(actual_right_son_values,expected_right_son_values)
+        self.assertEqual(actual_left_son_values, expected_left_son_values)
+        self.assertEqual(actual_right_son_values, expected_right_son_values)
 
         actual_left_son_decision = node.son("L").decision
         actual_right_son_decision = node.son("R").decision
@@ -218,8 +219,46 @@ class TestSetSonsValues(unittest.TestCase):
         expected_left_son_decision = 'NIE_KUPUJ'
         expected_right_son_decision = 'KUP'
 
-        self.assertEqual(actual_left_son_decision,expected_left_son_decision)
-        self.assertEqual(actual_right_son_decision,expected_right_son_decision)
+        self.assertEqual(actual_left_son_decision, expected_left_son_decision)
+        self.assertEqual(actual_right_son_decision, expected_right_son_decision)
+
+    def test_set_sons_values_2(self):
+        "Test dla wierzcholka zawierajacego tylko jedna obserwacje z jednej klasy"
+
+        #Taki wierzcholek jest lisciem i metoda nie powinna tworzyc dzieci
+        node = BinNode([0], self.data_type, self.classifier_classes)
+        random.seed(99)
+
+        #przed wywolaniem metody set_sons_values lewy i prawy syn wierzcholka powinny byc None
+        left_son = node.son("L")
+        self.assertIsNone(left_son)
+        right_son = node.son("R")
+        self.assertIsNone(right_son)
+
+        node.set_sons_values(3, self.X, self.y, which='C')
+
+        self.assertIsNone(left_son)
+        self.assertIsNone(right_son)
+
+    def test_set_sons_values_3(self):
+        "Test dla regresji i wierzcholka zawierajacego 4 obserwacje"
+
+        node = BinNode([0,1,2,3], self.data_type)
+
+        left_son_before = node.son("L")
+        right_son_before = node.son("R")
+
+        #Przed wywolaniem fukcji dzieci powinny byc None
+        self.assertIsNone(left_son_before)
+        self.assertIsNone(right_son_before)
+
+        node.set_sons_values(3, self.X, self.z, which='R')
+
+        left_son_after = node.son("L")
+        right_son_after = node.son("R")
+
+        self.assertEqual(left_son_after.values,[2])
+        self.assertEqual(right_son_after.values,[0,1,3])
 
 class TestTree(unittest.TestCase):
     def test_create_tree(self):
