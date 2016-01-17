@@ -99,6 +99,18 @@ class TestSon(unittest.TestCase):
         expected = None,None
         self.assertEqual(expected, actual)
 
+class TestTree(unittest.TestCase):
+		
+    def test_create_tree(self):
+        "Test sprawdzajacy tworzenie drzewa"
+		
+        n_features, X, y, data_type, classifier_classes = 1, np.array([[1,1],[2,2]]),\
+                                                          np.array([1,2]), [('numeryczne',[1,2])], 'R'
+        tree = BinTree(n_features, X, y, data_type, classifier_classes)
+        self.assertIsInstance(tree.root(), BinNode)
+        self.assertEquals(tree.node.left.is_leaf(), True)
+        self.assertEquals(tree.node.right.is_leaf(), True)
+		
 if __name__ == '__main__':
     unittest.main()
 
