@@ -50,14 +50,14 @@ class RandomForestRegressor(RandomForestBase):
             for i in not_rows:
                 decisions[i].append(tree.classify(X[i, :]))
 
-            ###r2 jako warunek zakonczenia uczenia lasow losowych dla regresji
+            #r2 jako warunek zakonczenia uczenia lasow losowych dla regresji
             r2_score = sum((np.mean(decisions[i]) - mean_y)**2 for i in range(m) if decisions[i]) / float(sum((y[i] - mean_y)**2 for i in range(m)))
             last_oob_errors.append(r2_score)
 
             #sprawdzenie czy mozna zakonczyc proces uczenia nowych drzew
             #wyliczenie bledu oob
             if len(last_oob_errors) == 11:
-                if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.01:
+                if list(last_oob_errors)[0] - (sum(list(last_oob_errors)[1:]) / 10.) < 0.001:
                     new_tree = False
 
     def predict(self, X):
