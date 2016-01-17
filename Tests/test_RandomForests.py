@@ -1,6 +1,6 @@
 import unittest
 import RandomForest
-from RandomForest.BinTree import analyse_input_data
+from RandomForest.BinTree import analyse_input_data, BinNode
 import numpy as np
 
 
@@ -45,6 +45,32 @@ class TestBinTreeAnalyseInputData(unittest.TestCase):
             [['Honda', 2006, 'idealny', 215000],
              ['Renault', 2010, 'igla', 130000]]), np.array(['NIE_KUPUJ', 'KUP', 'NIE_KUPUJ', 'NIE_KUPUJ', 'NIE_WIEM']))
 
+class TestBinTreeIsLeaf(unittest.TestCase):
+    "Test dla funkcji is_leaf sprawdzajacej czy wezel jest lisciem"
+
+    def test_is_leaf_1(self):
+        "Test dla wezla bedacego lisciem"
+
+        node=BinNode(5,int)
+        actual = node.is_leaf()
+        expected = True
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla nie bedacego lisciem, majacego prawego i lewego syna"
+
+        node=BinNode(5,int,left=4,right=3)
+        actual = node.is_leaf()
+        expected = False
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla nie bedacego lisciem, majacego prawego syna"
+
+        node=BinNode(5,int,right=3)
+        actual = node.is_leaf()
+        expected = False
+        self.assertEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main()
