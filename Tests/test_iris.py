@@ -1,6 +1,6 @@
 __author__ = 'Klara'
 
-import RandomForestClassifier, RandomForestRegressor
+from RandomForest import RandomForestRegressor, RandomForestClassifier
 import numpy as np
 from sklearn import datasets
 
