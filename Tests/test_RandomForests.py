@@ -71,6 +71,33 @@ class TestBinTreeIsLeaf(unittest.TestCase):
         actual = node.is_leaf()
         expected = False
         self.assertEqual(expected, actual)
+        
+class TestSon(unittest.TestCase):
+    "Test dla funkcji son zwracajacego wybranego syna wezla: prawego lub lewego"
+
+    def test_is_leaf_1(self):
+        "Test dla wezla posiadajacego dwoch synow, zwracanie lewego syna"
+
+        node=BinNode(5,int,left=2,right=1)
+        actual = node.son('L')
+        expected = 2
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla posiadajacego dwoch synow, zwracanie prawego syna"
+
+        node=BinNode(5,int,left=2,right=1)
+        actual = node.son('R')
+        expected = 1
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla nie posiadajacego zadnego syna"
+
+        node=BinNode(5,int)
+        actual = node.son('R'),node.son('L')
+        expected = None,None
+        self.assertEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main()
