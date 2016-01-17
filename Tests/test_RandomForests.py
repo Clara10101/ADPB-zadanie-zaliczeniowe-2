@@ -1,8 +1,7 @@
 import unittest
 import RandomForest
-from RandomForest.BinTree import analyse_input_data, BinNode, BinTree, is_numeric
+from RandomForest.BinTree import analyse_input_data, BinNode
 import numpy as np
-import random
 
 
 class TestBinTreeAnalyseInputData(unittest.TestCase):
@@ -46,75 +45,72 @@ class TestBinTreeAnalyseInputData(unittest.TestCase):
             [['Honda', 2006, 'idealny', 215000],
              ['Renault', 2010, 'igla', 130000]]), np.array(['NIE_KUPUJ', 'KUP', 'NIE_KUPUJ', 'NIE_KUPUJ', 'NIE_WIEM']))
 
-class TestBinTreeFindBestDivision(unittest.TestCase):
-    "Test dla funkcji znajdujacej optymalny podzial w wezle"
+class TestBinTreeIsLeaf(unittest.TestCase):
+    "Test dla funkcji is_leaf sprawdzajacej czy wezel jest lisciem"
 
-    # testowe dane wejsciowe
-    X = np.array(
-        [['Honda', 2009, 'igla', 180000.87],
-         ['Honda', 2005, 'igla', 10100],
-         ['Honda', 2006, 'idealny', 215000],
-         ['Renault', 2010, 'igla', 130000],
-         ['Renault', 2007, 'idealny', 200000],
-         ['Renault', 2005, 'bezkolizyjny', 215000],
-         ['Ford', 2008, 'bezkolizyjny', 225000]])
+    def test_is_leaf_1(self):
+        "Test dla wezla bedacego lisciem"
 
-    y = np.array(['KUP', 'NIE_KUPUJ', 'NIE_KUPUJ','KUP', 'NIE_KUPUJ', 'NIE_KUPUJ', 'KUP'])
-
-    z = np.array([180000, 10100, 215000, 130000, 200000, 13000, 15000])
-
-    data_type, classifier_classes = analyse_input_data(X,y)
-
-    def test_find_best_division_1(self):
-        "Test dla klasyfikacji"
-
-        tree = BinTree(3,self.X,self.y,self.data_type,self.classifier_classes)
-        random.seed(99)
-
-        actual = tree.root().find_best_division(3,self.X,self.y,which='C')
-        expected = ((1, '2006', 'numeryczne'), [1, 2, 5], [0, 3, 4, 6])
-
-        self.assertEqual(expected, actual)
-
-    def test_find_best_division_2(self):
-        "Test dla regresji"
-
-        tree = BinTree(3,self.X,self.z,self.data_type,[],which='R')
-        random.seed(99)
-
-        actual = tree.root().find_best_division(3,self.X,self.z,'R')
-        expected = ((2, 'idealny', 'wyliczeniowe'), [2, 4], [0, 1, 3, 5, 6])
-
-        self.assertEqual(expected, actual)
-
-class BinTreeIsNumeric(unittest.TestCase):
-    "Test dla funkcji sprawdzajacej czy jej argument jest wartoscia numeryczna (int, float)"
-
-    def test_is_numeric_1(self):
-        "Test dla float"
-
-        actual = is_numeric(float(1.2))
+        node=BinNode(5,int)
+        actual = node.is_leaf()
         expected = True
-
         self.assertEqual(expected, actual)
 
-    def test_is_numeric_2(self):
-        "Test dla int"
+    def test_is_leaf_2(self):
+        "Test dla wezla nie bedacego lisciem, majacego prawego i lewego syna"
 
-        actual = is_numeric(int(5))
-        expected = True
-
-        self.assertEqual(expected, actual)
-
-    def test_is_numeric_3(self):
-        "Test dla str"
-
-        actual = is_numeric('abc')
+        node=BinNode(5,int,left=4,right=3)
+        actual = node.is_leaf()
         expected = False
-
         self.assertEqual(expected, actual)
 
+    def test_is_leaf_2(self):
+        "Test dla wezla nie bedacego lisciem, majacego prawego syna"
 
+        node=BinNode(5,int,right=3)
+        actual = node.is_leaf()
+        expected = False
+        self.assertEqual(expected, actual)
+        
+class TestSon(unittest.TestCase):
+    "Test dla funkcji son zwracajacego wybranego syna wezla: prawego lub lewego"
+
+    def test_is_leaf_1(self):
+        "Test dla wezla posiadajacego dwoch synow, zwracanie lewego syna"
+
+        node=BinNode(5,int,left=2,right=1)
+        actual = node.son('L')
+        expected = 2
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla posiadajacego dwoch synow, zwracanie prawego syna"
+
+        node=BinNode(5,int,left=2,right=1)
+        actual = node.son('R')
+        expected = 1
+        self.assertEqual(expected, actual)
+
+    def test_is_leaf_2(self):
+        "Test dla wezla nie posiadajacego zadnego syna"
+
+        node=BinNode(5,int)
+        actual = node.son('R'),node.son('L')
+        expected = None,None
+        self.assertEqual(expected, actual)
+
+class TestTree(unittest.TestCase):
+		
+    def test_create_tree(self):
+        "Test sprawdzajacy tworzenie drzewa"
+		
+        n_features, X, y, data_type, classifier_classes = 1, np.array([[1,1],[2,2]]),\
+                                                          np.array([1,2]), [('numeryczne',[1,2])], 'R'
+        tree = BinTree(n_features, X, y, data_type, classifier_classes)
+        self.assertIsInstance(tree.root(), BinNode)
+        self.assertEquals(tree.node.left.is_leaf(), True)
+        self.assertEquals(tree.node.right.is_leaf(), True)
+		
 if __name__ == '__main__':
     unittest.main()
 
