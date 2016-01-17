@@ -111,6 +111,26 @@ class TestTree(unittest.TestCase):
         self.assertEquals(tree.node.left.is_leaf(), True)
         self.assertEquals(tree.node.right.is_leaf(), True)
 		
+	def test_find_best_division(self):
+        "Test funkcji znajdujacej najlepszy podzial zbioru dla wezla"
+
+        n_features,X,y,data_type,classifier_classes = 1, np.array([[-2,-1], [-1,-1], [-1,-2], [1,1], [1,2], [2,1]]), \
+                                                      np.array([-1,-1,-1,1,1,1]),\
+                                                      [('numeryczne', [-2,-1,-1,1,1,2]),
+                                                       ('numeryczne', [-1,-1,-2,1,1,2])], 'R'
+
+        tree = BinTree(n_features,X,y,data_type,classifier_classes)
+        fbd_C = tree.node.find_best_division(n_features, X, y, "C")
+        self.assertAlmostEqual(fbd_C,((0, -2, 'numeryczne'), [0], [1, 2, 3, 4, 5]))
+        fbd_R = tree.node.find_best_division(n_features, X, y, "R")
+        self.assertAlmostEqual(fbd_R, ((0, 1, 'numeryczne'), [0, 1, 2, 3, 4], [5]))
+        tree = BinTree(n_features, np.array([[-2,-1]]), np.array([-1]), data_type, classifier_classes)
+        fbd = tree.node.find_best_division(1, np.array([[-2,-1],[-1,-1]])
+                                         , np.array([-1,-1]),"R")
+
+        self.assertEquals(fbd,(None, None, None))
+
+		
 if __name__ == '__main__':
     unittest.main()
 
