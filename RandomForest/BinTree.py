@@ -68,7 +68,7 @@ class BinNode:
 
         if which == 'R': #Regresja
 
-            if condition[0] != None and len(set(self.values_classes(y))) > 3:
+            if condition[0] != None and len(self.values) > 3:
 
                 self.condition = condition[0]
 
@@ -78,8 +78,8 @@ class BinNode:
                 self.left.set_sons_values(n_features, X, y, which='R')
                 self.right.set_sons_values(n_features, X, y, which='R')
 
+            else:
 
-            if len(set(self.values_classes(y))) <= 3:
                 self.decision = np.average(self.values_classes(y))
 
 
