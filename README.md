@@ -19,10 +19,10 @@ Konstruktory klas RandomForestClassifier oraz RandomForestRegressor przyjmują j
 
 Poniżej można znaleźć kilka przykładów wykorzystania modułu:
 
-1. Klasyfikacja dla zbioru danych na temat sprzedarzy samochodów
+1. Klasyfikacja i regresja dla zbioru danych na temat sprzedarzy samochodów
 
 ```
-import RandomForestClassifier, RandomForestRegressor
+from RandomForest import RandomForestClassifier, RandomForestRegressor
 import numpy as np
 
 cars_training_X = np.array(
@@ -60,7 +60,31 @@ r.fit(cars_training_X, cars_training_z)
 r.predict(cars_training_X)
 ```
 
+2. Klasyfikacja dla danych dotyczących irysów
 
+```
+from RandomForest import RandomForestClassifier
+import numpy as np
+from sklearn import datasets
+
+#Dane testowe
+iris = datasets.load_iris()
+iris_y = np.array(iris.target[:100], dtype=str)
+iris_X = np.array(iris.data[:100])
+
+rows = np.random.choice(100, 80, replace=False)
+iris_training_X = iris_X[rows,:]
+iris_training_y = iris_y[rows]
+
+not_rows = list(set(range(100)).difference(rows))
+iris_testing_X = iris_X[not_rows,:]
+iris_testing_y = iris_y[not_rows]
+
+#Klasyfikacja
+r = RandomForestClassifier.RandomForestClassifier(3)
+r.fit(iris_training_X,iris_training_y)
+r.predict(iris_testing_X)
+```
 
 
 
