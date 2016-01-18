@@ -19,7 +19,7 @@ Konstruktory klas RandomForestClassifier oraz RandomForestRegressor przyjmują j
 
 Poniżej można znaleźć kilka przykładów wykorzystania modułu:
 
-1. Klasyfikacja i regresja dla zbioru danych na temat sprzedarzy samochodów
+- Klasyfikacja i regresja dla zbioru danych na temat sprzedarzy samochodów
 
 ```
 from RandomForest import RandomForestClassifier, RandomForestRegressor
@@ -60,7 +60,7 @@ r.fit(cars_training_X, cars_training_z)
 r.predict(cars_training_X)
 ```
 
-2. Klasyfikacja dla danych dotyczących irysów
+- Klasyfikacja dla danych dotyczących irysów
 
 ```
 from RandomForest import RandomForestClassifier
