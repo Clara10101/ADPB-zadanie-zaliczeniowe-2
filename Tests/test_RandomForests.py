@@ -148,7 +148,7 @@ class TestBinTreeIsLeaf(unittest.TestCase):
 class TestSon(unittest.TestCase):
     "Test dla funkcji son zwracajacego wybranego syna wezla: prawego lub lewego"
 
-    def test_is_leaf_1(self):
+    def test_son_1(self):
         "Test dla wezla posiadajacego dwoch synow, zwracanie lewego syna"
 
         node = BinNode(5, int, left=2, right=1)
@@ -156,7 +156,7 @@ class TestSon(unittest.TestCase):
         expected = 2
         self.assertEqual(expected, actual)
 
-    def test_is_leaf_2(self):
+    def test_son_2(self):
         "Test dla wezla posiadajacego dwoch synow, zwracanie prawego syna"
 
         node = BinNode(5, int, left=2, right=1)
@@ -164,7 +164,7 @@ class TestSon(unittest.TestCase):
         expected = 1
         self.assertEqual(expected, actual)
 
-    def test_is_leaf_3(self):
+    def test_son_3(self):
         "Test dla wezla nie posiadajacego zadnego syna"
 
         node = BinNode(5, int)
