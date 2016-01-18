@@ -49,7 +49,7 @@ class RandomForestClassifier(RandomForestBase):
                 #sprawdzenie czy podobne proporcje pomiedzy klasami do tych w pelnym zbiorze treningowym
                 act_prop = Counter(training_set_classes)[self.classifier_classes[0]] / float(m)
 
-                if prop - 0.2 <= act_prop <= prop + 0.2:
+                if prop - 0.1 <= act_prop <= prop + 0.1:
                     losuj = False
 
             #wiersze ktore nie sa w zbiorze treningowym - out of bag
