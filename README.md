@@ -9,11 +9,13 @@ Moduł udostępnia dwie klasy z następującymi metodami:
   - predict_proba(X) - zwraca wektor prawdopodobieństw przynależności przykładów z X do klasy występującej w zbiorze treningowym jako pierwsza
 
 - RandomForestRegressor
-  - fit(X, y) - uczy klasyfikator na zbiorze treningowym X; y jest wektorem,który dla każdego wiersza X zawiera wartość zmiennej zależnej
+  - fit(X, y) - uczy regresor na zbiorze treningowym X; y jest wektorem,który dla każdego wiersza X zawiera wartość zmiennej zależnej
   - predict(X) - zwraca wektor wyników regresji dla przykładów w X
 
 X jest tablicą dwuwymiarową o wymiarach (m x n), a y wektorem długości m. Zarówno X jak i y powinny być typu numpy.array.
 Konstruktory klas RandomForestClassifier oraz RandomForestRegressor przyjmują jeden parametr w postaci liczby naturalnej >= 1.
+
+W przypadku obu klas przed wywołaniem metody predict konieczne jest wykonanie procesu uczenia klasyfikatora lub regresora na zbiorze testowych danych poprzez wywołanie metody fit.
 
 ------------------------------------------
 
