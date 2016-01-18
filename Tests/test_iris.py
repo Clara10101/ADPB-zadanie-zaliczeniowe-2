@@ -1,4 +1,4 @@
-from RandomForest import RandomForestRegressor, RandomForestClassifier
+from RandomForest import RandomForestClassifier
 import numpy as np
 from sklearn import datasets
 
@@ -16,16 +16,16 @@ iris_testing_X = iris_X[not_rows,:]
 iris_testing_y = iris_y[not_rows]
 
 #inicjalizacja klasyfikatora
-r2 = RandomForestClassifier.RandomForestClassifier(3)
+r = RandomForestClassifier.RandomForestClassifier(3)
 
 #nauczenie klasyfikatora na zbiorze treningowym
-r2.fit(iris_training_X,iris_training_y)
+r.fit(iris_training_X,iris_training_y)
 
 #predukcje
-predykcje_r2 = r2.predict(iris_testing_X)
-print predykcje_r2
+predykcje_r = r.predict(iris_testing_X)
+print predykcje_r
 
-print r2.predict_proba(iris_testing_X)
+print r.predict_proba(iris_testing_X)
 print iris_testing_y
 
-print "Poprawnie sklasyfikowanych " + str(sum(predykcje_r2 == iris_testing_y)) + "/20"
+print "Poprawnie sklasyfikowanych " + str(sum(predykcje_r == iris_testing_y)) + "/20"
