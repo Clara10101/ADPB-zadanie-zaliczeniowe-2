@@ -1,6 +1,6 @@
 import unittest
 import RandomForest
-from RandomForest.BinTree import analyse_input_data, BinNode, BinTree, is_numeric
+from RandomForest.BinTree import analyse_input_data, BinNode, BinTree, is_numeric, gini
 import numpy as np
 import random
 
@@ -259,6 +259,16 @@ class TestSetSonsValues(unittest.TestCase):
 
         self.assertEqual(left_son_after.values,[2])
         self.assertEqual(right_son_after.values,[0,1,3])
+
+class TestGini(unittest.TestCase):
+    "Test dla funkcji gini wyznaczajacej kryterium optymalnosci Gini impurity"
+
+    def test_gini_1(self,n=20,nl=9,nr=11,nl0=5,nl1=4,nr0=5,nr1=6):
+        "Test poprawnosci typu zwracanej wartosci przez funckje, dla poprawnych danych wejsciowych"
+
+        actual = type(gini(n,nl,nr,nl0,nl1,nr0,nr1))
+        expected = int
+        self.assertEqual(expected, actual)
 
 class TestTree(unittest.TestCase):
 
