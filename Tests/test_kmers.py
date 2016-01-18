@@ -1,5 +1,5 @@
 __author__ = 'MagdaTarka'
-import RandomForestClassifier
+from RandomForest import RandomForestClassifier
 from itertools import product
 import numpy as np
 
@@ -55,17 +55,27 @@ def test():
     return kmers_in_seq, np.array(y)
 
 
-kmer,y=test()
-c = RandomForestClassifier.RandomForestClassifier(204)
-c.fit(kmer,y)
-d=c.predict(kmer)
-c.predict_proba(kmer)
+if __name__ == '__main__':
+    kmer,y=test()
+    c = RandomForestClassifier.RandomForestClassifier(204)
 
-t=0
-f=0
-for i in range(len(d)):
-    if d[i]==y[i]:
-        t=t+1
-    else:
-        f=f+1
-print 'Klasyfikowano',len(d),'sekwencji. Poprawna klasyfikacja w:',t,'przypadkach. Bledna klasyfikacja w:',f,'przypadkach. Klasyfikator dziala poprawnie dla',float(t)/float(t+f)*100,'% przykladow.'
+    #Test dla klasyfikatora
+    m,n = kmer.shape
+    treningowe = np.random.choice(m, m, replace=True)
+    testowe = list(set(range(m)).difference(treningowe))
+
+    c.fit(kmer[treningowe],y[treningowe])
+
+    d=c.predict(kmer[testowe])
+    c.predict_proba(kmer[testowe])
+
+    y_test = y[testowe]
+
+    t=0
+    f=0
+    for i in range(len(d)):
+        if d[i]==y_test[i]:
+            t=t+1
+        else:
+            f=f+1
+    print 'Klasyfikowano',len(d),'sekwencji. Poprawna klasyfikacja w:',t,'przypadkach. Bledna klasyfikacja w:',f,'przypadkach. Klasyfikator dziala poprawnie dla',float(t)/float(t+f)*100,'% przykladow.'
