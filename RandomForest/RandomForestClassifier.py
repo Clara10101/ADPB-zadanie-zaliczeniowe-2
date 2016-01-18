@@ -87,6 +87,10 @@ class RandomForestClassifier(RandomForestBase):
 
     def predict(self,X):
 
+        #Sprawdzenie czy regresor zostal wczesniej nauczony
+        if self.forest == []:
+            raise ValueError('Metoda fit nie zostala wywolana')
+
         self.check_predict_data(X)
 
         decisions = self.decisions_made_by_all_trees(X)
