@@ -261,6 +261,7 @@ class TestSetSonsValues(unittest.TestCase):
         self.assertEqual(right_son_after.values,[0,1,3])
 
 class TestTree(unittest.TestCase):
+
     def test_create_tree(self):
         "Test sprawdzajacy tworzenie drzewa"
 
@@ -270,8 +271,6 @@ class TestTree(unittest.TestCase):
         self.assertIsInstance(tree.root(), BinNode)
         self.assertEquals(tree.node.left.is_leaf(), True)
         self.assertEquals(tree.node.right.is_leaf(), True)
-
-		
 
 
 if __name__ == '__main__':
