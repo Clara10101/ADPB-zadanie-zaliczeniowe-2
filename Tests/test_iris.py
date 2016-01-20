@@ -1,4 +1,4 @@
-from RandomForest import RandomForestClassifier
+from ..RandomForest import RandomForestClassifier
 import numpy as np
 from sklearn import datasets
 
