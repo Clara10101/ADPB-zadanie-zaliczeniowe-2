@@ -1,6 +1,6 @@
 import unittest
 import RandomForest
-from RandomForest.BinTree import analyse_input_data, BinNode, BinTree, is_numeric, gini
+from ..RandomForest.BinTree import analyse_input_data, BinNode, BinTree, is_numeric, gini
 import numpy as np
 import random
 
