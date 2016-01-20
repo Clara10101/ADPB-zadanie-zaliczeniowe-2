@@ -1,5 +1,5 @@
 __author__ = 'MagdaTarka'
-from RandomForest import RandomForestClassifier
+from ..RandomForest import RandomForestClassifier
 from itertools import product
 import numpy as np
 
